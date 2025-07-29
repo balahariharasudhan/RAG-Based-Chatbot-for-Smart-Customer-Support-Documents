@@ -91,6 +91,14 @@ A: [Answer from context]
 
 2) LLM: llama3-8b-8192 via Groq API (free and fast inference).
 
+## 📸 Screenshots
+
+### 🔹 Sample Query and Response in terminal
+![Chatbot Response](screenshots/Testing_on_Terminal.png)
+
+### 🔹 Streamlit UI 
+![UI Screenshot](screenshots/Streamlit_UI.png)
+
 ------------------------------------------------------------------------
 
 ✅ Key Learnings
