@@ -1,3 +1,28 @@
+<!-- Core Technologies -->
+![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/UI-Streamlit-ff4b4b?logo=streamlit&logoColor=white)
+![FAISS](https://img.shields.io/badge/VectorDB-FAISS-green?logo=vector)
+![OCR](https://img.shields.io/badge/OCR-PyMuPDF%20+%20Pytesseract-purple?logo=files)
+
+<!-- LLM & Embeddings -->
+![LLM](https://img.shields.io/badge/LLM-Groq%20LLaMA3%208B-lightgrey?logo=openai)
+![Embeddings](https://img.shields.io/badge/Embeddings-all--MiniLM--L6--v2-yellow?logo=semanticweb)
+
+<!-- Project Type -->
+![RAG](https://img.shields.io/badge/Model-Retrieval--Augmented%20Generation-orange?logo=readthedocs&logoColor=white)
+![PDF-QA](https://img.shields.io/badge/UseCase-PDF--QA-red?logo=adobeacrobatreader)
+
+<!-- Dev & Infra -->
+![HuggingFace](https://img.shields.io/badge/Transformers-HuggingFace-ffcc00?logo=huggingface&logoColor=black)
+![Local](https://img.shields.io/badge/Execution-Local%20+%20GroqAPI-brightgreen?logo=powerbi)
+![CLI](https://img.shields.io/badge/Interface-CLI%20%2B%20UI-orange?logo=windowsterminal)
+
+<!-- Meta Info -->
+![License](https://img.shields.io/badge/License-MIT-green)
+![Repo Size](https://img.shields.io/github/repo-size/balahariharasudhan/RAG-Based-Chatbot-for-Smart-Customer-Support-Documents)
+![Last Commit](https://img.shields.io/github/last-commit/balahariharasudhan/RAG-Based-Chatbot-for-Smart-Customer-Support-Documents)
+
+
 # RAG-Based Chatbot for Smart Customer Support Documents
 
 This project implements a **Retrieval-Augmented Generation (RAG)** based chatbot to intelligently answer questions using a PDF document containing both **text and images**. It uses local embedding models and the **Groq API** for high-performance, cost-free generation, avoiding any paid APIs.
