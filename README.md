@@ -52,7 +52,15 @@ This project implements a **Retrieval-Augmented Generation (RAG)** based chatbot
 - `vectorstore/` – 🧠 Local FAISS vector database
 - `README.md` – 📘 You're reading it now!
 
+## 🧠 Architecture Diagram
 
+- General RAG Workflow
+
+![General RAG Workflow](screenshots/RAG_Workflow.png)
+
+- Implemented RAG Chatbot Architecture
+
+![Implemented RAG Chatbot Architecture](screenshots/RAG_Bot.png)
 ---
 
 ## 🛠️ Setup Instructions
