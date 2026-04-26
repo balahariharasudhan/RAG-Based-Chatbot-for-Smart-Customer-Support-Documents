@@ -1,51 +1,94 @@
-# ingest_pdf.py
-
 import os
+
 import fitz  # PyMuPDF
-from pdf2image import convert_from_path
 import pytesseract
-from PIL import Image
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
+from langchain_huggingface import HuggingFaceEmbeddings
+from pdf2image import convert_from_path
 
-# Set path to tesseract executable (adjust if installed elsewhere)
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-# File path
-pdf_path = "CSR MODULES.pdf"
-doc = fitz.open(pdf_path)
+DEFAULT_PDF_PATH = "CSR MODULES.pdf"
+DEFAULT_VECTORSTORE_PATH = "vectorstore"
+WINDOWS_TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-all_text_chunks = []
 
-# Loop through pages
-for page_number in range(len(doc)):
-    print(f"🔍 Processing page {page_number + 1}/{len(doc)}...")
+def configure_tesseract():
+    """Use the Windows executable when present; otherwise rely on the system PATH."""
+    if os.path.exists(WINDOWS_TESSERACT_PATH):
+        pytesseract.pytesseract.tesseract_cmd = WINDOWS_TESSERACT_PATH
 
-    # Extract text via PyMuPDF
-    page = doc.load_page(page_number)
-    pdf_text = page.get_text()
 
-    # Convert this page to image (for OCR)
-    images = convert_from_path(pdf_path, first_page=page_number + 1, last_page=page_number + 1)
-    ocr_text = ""
-    for image in images:
-        ocr_text += pytesseract.image_to_string(image)
+def extract_pdf_documents(pdf_path, enable_ocr=True, progress_callback=None):
+    configure_tesseract()
+    documents = []
 
-    # Merge PDF + OCR text
-    combined_text = f"{pdf_text.strip()}\n\n{ocr_text.strip()}"
+    with fitz.open(pdf_path) as doc:
+        total_pages = len(doc)
 
-    # Create LangChain Document
-    page_doc = Document(page_content=combined_text, metadata={"page": page_number + 1})
-    all_text_chunks.append(page_doc)
+        for page_number in range(total_pages):
+            if progress_callback:
+                progress_callback(page_number + 1, total_pages)
+            else:
+                print(f"Processing page {page_number + 1}/{total_pages}...")
 
-# Initialize embeddings
-embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+            page = doc.load_page(page_number)
+            pdf_text = page.get_text().strip()
+            ocr_text = ""
 
-# Build vectorstore
-print("🧠 Creating FAISS vectorstore...")
-db = FAISS.from_documents(all_text_chunks, embedding)
+            if enable_ocr:
+                try:
+                    images = convert_from_path(
+                        pdf_path,
+                        first_page=page_number + 1,
+                        last_page=page_number + 1,
+                    )
+                    ocr_text = "\n".join(
+                        pytesseract.image_to_string(image).strip()
+                        for image in images
+                    ).strip()
+                except Exception as exc:
+                    print(f"OCR skipped on page {page_number + 1}: {exc}")
 
-# Save it locally
-db.save_local("vectorstore")
-print("✅ Done! Vectorstore saved to 'vectorstore/'")
+            combined_text = f"{pdf_text}\n\n{ocr_text}".strip()
+            if combined_text:
+                documents.append(
+                    Document(
+                        page_content=combined_text,
+                        metadata={"page": page_number + 1},
+                    )
+                )
+
+    if not documents:
+        raise ValueError("No readable text was found in this PDF.")
+
+    return documents
+
+
+def get_embedding_model():
+    return HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+
+
+def build_vectorstore(documents):
+    embedding = get_embedding_model()
+    return FAISS.from_documents(documents, embedding)
+
+
+def ingest_pdf(pdf_path, save_path=None, enable_ocr=True, progress_callback=None):
+    documents = extract_pdf_documents(
+        pdf_path,
+        enable_ocr=enable_ocr,
+        progress_callback=progress_callback,
+    )
+    db = build_vectorstore(documents)
+
+    if save_path:
+        db.save_local(save_path)
+
+    return db
+
+
+if __name__ == "__main__":
+    print(f"Ingesting {DEFAULT_PDF_PATH}...")
+    ingest_pdf(DEFAULT_PDF_PATH, save_path=DEFAULT_VECTORSTORE_PATH)
+    print(f"Done! Vectorstore saved to '{DEFAULT_VECTORSTORE_PATH}/'")
